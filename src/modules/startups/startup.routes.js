@@ -6,6 +6,7 @@ const protect = require("../../middleware/auth.middleware");
 
 const startupController = require("./startup.controller");
 const startupOwnerMiddleware = require("../../middleware/startupOwner.middleware");
+const { imageUpload } = require("../../middleware/upload.middleware");
 
 
 const {
@@ -17,7 +18,6 @@ const startupQueryValidation = require("./startup.query.validation");
 
 
 router.get("/", startupQueryValidation, startupController.getAllStartups);
-router.get("/:id", startupController.getStartupById);
 
 router.post(
     "/",
@@ -26,6 +26,13 @@ router.post(
     startupController.createStartup
 );
 
+router.get(
+    "/me",
+    protect,
+    startupController.getMyStartups
+);
+
+router.get("/:id", startupController.getStartupById);
 router.patch(
     "/:id",
     protect,
@@ -41,5 +48,13 @@ router.delete(
     startupController.deleteStartup
 );
 
+
+router.patch(
+    "/:id/logo",
+    protect,
+    startupOwnerMiddleware,
+    imageUpload.single("logo"),
+    startupController.uploadStartupLogo
+);
 
 module.exports = router;

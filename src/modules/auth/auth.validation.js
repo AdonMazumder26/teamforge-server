@@ -1,4 +1,8 @@
 const { body } = require("express-validator");
+const {
+    ACCOUNT_TYPES,
+    USER_ROLES,
+} = require("../../constants/user.constants");
 
 const registerValidation = [
     body("name")
@@ -21,29 +25,12 @@ const registerValidation = [
         .isLength({ min: 6 })
         .withMessage("Password must be at least 6 characters"),
 
+    body("accountType")
+        .isIn(Object.values(ACCOUNT_TYPES))
+        .withMessage("Invalid account type"),
+
     body("role")
-        .isIn([
-            "Founder",
-            "Co-Founder",
-            "Full Stack Developer",
-            "Frontend Developer",
-            "Backend Developer",
-            "Mobile Developer",
-            "AI/ML Engineer",
-            "DevOps Engineer",
-            "UI/UX Designer",
-            "Graphic Designer",
-            "Product Manager",
-            "Business Developer",
-            "Digital Marketer",
-            "Content Creator",
-            "Sales",
-            "Investor",
-            "Mentor",
-            "Advisor",
-            "Student",
-            "Other"
-        ])
+        .isIn(USER_ROLES)
         .withMessage("Invalid role"),
 ];
 

@@ -1,4 +1,8 @@
 const mongoose = require("mongoose");
+const {
+    ACCOUNT_TYPES,
+    USER_ROLES,
+} = require("../../constants/user.constants");
 
 const userSchema = new mongoose.Schema(
     {
@@ -31,30 +35,15 @@ const userSchema = new mongoose.Schema(
             select: false,
         },
 
+        accountType: {
+            type: String,
+            enum: Object.values(ACCOUNT_TYPES),
+            required: true,
+        },
+
         role: {
             type: String,
-            enum: [
-                "Founder",
-                "Co-Founder",
-                "Full Stack Developer",
-                "Frontend Developer",
-                "Backend Developer",
-                "Mobile Developer",
-                "AI/ML Engineer",
-                "DevOps Engineer",
-                "UI/UX Designer",
-                "Graphic Designer",
-                "Product Manager",
-                "Business Developer",
-                "Digital Marketer",
-                "Content Creator",
-                "Sales",
-                "Investor",
-                "Mentor",
-                "Advisor",
-                "Student",
-                "Other"
-            ],
+            enum: USER_ROLES,
             required: true,
         },
 
@@ -69,8 +58,15 @@ const userSchema = new mongoose.Schema(
         },
 
         profileImage: {
-            type: String,
-            default: "",
+            _id: false,
+            url: {
+                type: String,
+                default: "",
+            },
+            publicId: {
+                type: String,
+                default: "",
+            },
         },
 
         github: {

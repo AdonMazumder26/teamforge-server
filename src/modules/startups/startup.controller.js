@@ -32,7 +32,7 @@ const createStartup = async (req, res) => {
             startup,
         });
     } catch (error) {
-        console.error(error);
+
         if (error.message === "You already have a startup with this title.") {
             return res.status(400).json({
                 success: false,
@@ -98,7 +98,7 @@ const getStartupById = async (req, res) => {
             });
         }
 
-        console.error(error);
+
 
         res.status(500).json({
             success: false,
@@ -141,7 +141,14 @@ const updateStartup = async (req, res) => {
             startup,
         });
     } catch (error) {
-        console.error(error);
+
+
+        if (error.message === "Startup not found.") {
+            return res.status(404).json({
+                success: false,
+                message: error.message,
+            });
+        }
 
         res.status(500).json({
             success: false,
@@ -159,7 +166,7 @@ const deleteStartup = async (req, res) => {
             message: "Startup deleted successfully",
         });
     } catch (error) {
-        console.error(error);
+
 
         res.status(500).json({
             success: false,
@@ -168,6 +175,56 @@ const deleteStartup = async (req, res) => {
     }
 };
 
+const uploadStartupLogo = async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({
+                success: false,
+                message: "Logo image is required.",
+            });
+        }
+
+        const startup = await startupService.uploadStartupLogo(
+            req.params.id,
+            req.user._id,
+            req.file
+        );
+
+        return res.status(200).json({
+            success: true,
+            message: "Startup logo uploaded successfully.",
+            data: startup,
+        });
+    } catch (error) {
+        return res.status(error.statusCode || 500).json({
+            success: false,
+            message: error.message,
+        });
+    }
+};
+
+
+const getMyStartups = async (req, res) => {
+    try {
+        const startups = await startupService.getMyStartups(req.user._id);
+
+        res.status(200).json({
+            success: true,
+            count: startups.length,
+            data: startups,
+        });
+    } catch (error) {
+
+
+        res.status(500).json({
+            success: false,
+            message: error.message || "Failed to fetch startups.",
+        });
+    }
+};
+
+
+
 module.exports = {
-    createStartup, getAllStartups, getStartupById, updateStartup, deleteStartup
+    createStartup, getAllStartups, getStartupById, updateStartup, deleteStartup, uploadStartupLogo, getMyStartups
 };

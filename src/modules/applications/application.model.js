@@ -28,8 +28,15 @@ const applicationSchema = new mongoose.Schema(
         },
 
         resume: {
-            type: String,
-            trim: true,
+            _id: false,
+            url: {
+                type: String,
+                default: "",
+            },
+            publicId: {
+                type: String,
+                default: "",
+            },
         },
 
         portfolio: {

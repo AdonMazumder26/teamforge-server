@@ -6,22 +6,42 @@ const {
     applyValidation,
     getStartupApplicationsValidation,
     withdrawApplicationValidation,
+    reviewApplicationValidation,
+    updateStatusValidation,
 } = require("./application.validation");
 const protect = require("../../middleware/auth.middleware");
 const { getApplicationsValidation } = require("./application.query.validation");
+const { resumeUpload } = require("../../middleware/upload.middleware");
+
+
+// router.post(
+//     "/",
+//     protect,
+//     applyValidation,
+//     applicationController.applyToStartup
+// );
 
 router.post(
     "/",
     protect,
+    resumeUpload.single("resume"),
     applyValidation,
-    applicationController.applyToStartup
+    applicationController.apply
 );
+
 
 router.get(
     "/me",
     protect,
     getApplicationsValidation,
     applicationController.getMyApplications
+);
+
+router.patch(
+    "/:id/withdraw",
+    protect,
+    withdrawApplicationValidation,
+    applicationController.withdrawApplication
 );
 
 router.get(
@@ -32,11 +52,25 @@ router.get(
     applicationController.getStartupApplications
 );
 
-router.patch(
-    "/:id/withdraw",
+router.post(
+    "/:id/review",
     protect,
-    withdrawApplicationValidation,
-    applicationController.withdrawApplication
+    reviewApplicationValidation,
+    applicationController.reviewApplication
 );
+
+router.get(
+    "/:id",
+    protect,
+    applicationController.getApplicationById
+);
+
+router.patch(
+    "/:id/status",
+    protect,
+    updateStatusValidation,
+    applicationController.updateApplicationStatus
+);
+
 
 module.exports = router;

@@ -4,6 +4,9 @@ const {
     REVIEW_RECOMMENDATIONS,
 } = require("./application.constants");
 
+const { APPLICATION_STATUS } = require("./application.constants");
+
+
 const applyValidation = [
     body("startupId")
         .notEmpty()
@@ -22,11 +25,7 @@ const applyValidation = [
         .isLength({ max: 1000 })
         .withMessage("Message cannot exceed 1000 characters"),
 
-    body("resume")
-        .optional()
-        .trim()
-        .isURL()
-        .withMessage("Resume must be a valid URL"),
+
 
     body("portfolio")
         .optional()
@@ -114,9 +113,19 @@ const reviewApplicationValidation = [
         .withMessage("Feedback cannot exceed 2000 characters"),
 ];
 
+
+const updateStatusValidation = [
+    body("status")
+        .notEmpty()
+        .withMessage("Status is required.")
+        .isIn(Object.values(APPLICATION_STATUS))
+        .withMessage("Invalid application status."),
+];
+
 module.exports = {
     applyValidation,
     getStartupApplicationsValidation,
     withdrawApplicationValidation,
-    reviewApplicationValidation
+    reviewApplicationValidation,
+    updateStatusValidation
 };

@@ -39,7 +39,7 @@ const updateProfile = async (req, res) => {
             user,
         });
     } catch (error) {
-        console.error(error);
+
 
         res.status(500).json({
             success: false,
@@ -57,7 +57,7 @@ const getCurrentUser = async (req, res) => {
             user,
         });
     } catch (error) {
-        console.error(error);
+
 
         res.status(500).json({
             success: false,
@@ -84,7 +84,7 @@ const getUserByUsername = async (req, res) => {
             user,
         });
     } catch (error) {
-        console.error(error);
+
 
         res.status(500).json({
             success: false,
@@ -103,7 +103,7 @@ const getAllUsers = async (req, res) => {
             users,
         });
     } catch (error) {
-        console.error(error);
+
 
         res.status(500).json({
             success: false,
@@ -111,7 +111,34 @@ const getAllUsers = async (req, res) => {
         });
     }
 };
+const uploadProfileImage = async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({
+                success: false,
+                message: "Profile image is required.",
+            });
+        }
+
+        const user = await userService.uploadProfileImage(
+            req.user._id,
+            req.file
+        );
+
+        return res.status(200).json({
+            success: true,
+            message: "Profile image uploaded successfully.",
+            data: user,
+        });
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: error.message,
+        });
+    }
+};
+
 
 module.exports = {
-    updateProfile, getCurrentUser, getUserByUsername, getAllUsers
+    updateProfile, getCurrentUser, getUserByUsername, getAllUsers, uploadProfileImage
 };

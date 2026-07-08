@@ -3,7 +3,14 @@ const User = require("../users/user.model");
 const { generateToken } = require("../../utils/generateToken");
 
 const registerUser = async (userData) => {
-    const { name, username, email, password, role } = userData;
+    const {
+        name,
+        username,
+        email,
+        password,
+        accountType,
+        role,
+    } = userData;
 
     const existingEmail = await User.findOne({ email });
 
@@ -24,15 +31,21 @@ const registerUser = async (userData) => {
         username,
         email,
         password: hashedPassword,
-        role
-    })
+        accountType,
+        role,
+    });
 
     const userWithoutPassword = user.toObject();
     delete userWithoutPassword.password;
 
+    const token = generateToken({
+        userId: user._id,
+    });
 
-
-    return userWithoutPassword;
+    return {
+        token,
+        user: userWithoutPassword,
+    };
 }
 
 const loginUser = async ({ email, password }) => {

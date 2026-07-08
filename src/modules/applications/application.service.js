@@ -1,5 +1,11 @@
 const Application = require("./application.model");
 const Startup = require("../startups/startup.model");
+const { uploadFile } = require("../../utils/cloudinaryUpload");
+
+
+const {
+    APPLICATION_STATUS,
+} = require("./application.constants");
 
 const {
     buildFilter,
@@ -7,7 +13,7 @@ const {
     buildSort,
 } = require("../../utils/applicationQueryBuilder");
 
-const applyToStartup = async (applicationData, applicantId) => {
+const applyToStartup = async (applicationData, applicantId, file) => {
     const startup = await Startup.findById(applicationData.startupId);
 
     if (!startup) {
@@ -65,16 +71,41 @@ const applyToStartup = async (applicationData, applicantId) => {
         throw error;
     }
 
+    let resume = {
+        url: "",
+        publicId: "",
+    };
+
+    if (file) {
+
+        const uploadedResume = await uploadFile(
+            file,
+            "teamforge/resumes",
+            "raw"
+        );
+
+
+
+        resume = {
+            url: uploadedResume.secure_url,
+            publicId: uploadedResume.public_id,
+        };
+    }
+
+
+
     const application = await Application.create({
         applicant: applicantId,
         startup: startup._id,
         role: applicationData.role,
         message: applicationData.message,
-        resume: applicationData.resume,
+        resume,
         portfolio: applicationData.portfolio,
     });
 
-    return await Application.findById(application._id)
+
+
+    const populatedApplication = await Application.findById(application._id)
         .populate(
             "applicant",
             "name username profileImage"
@@ -83,6 +114,10 @@ const applyToStartup = async (applicationData, applicantId) => {
             "startup",
             "title logo"
         );
+
+
+
+    return populatedApplication;
 };
 
 
@@ -254,7 +289,13 @@ const withdrawApplication = async (
     )
         .populate(
             "startup",
-            "title logo"
+            `
+    title
+    tagline
+    logo
+    location
+    stage
+    `
         )
         .populate(
             "applicant",
@@ -262,6 +303,50 @@ const withdrawApplication = async (
         );
 };
 
+const getApplicationById = async (applicationId, recruiterId) => {
+    const application = await Application.findById(applicationId)
+        .populate(
+            "applicant",
+            `
+            name
+            username
+            profileImage
+            bio
+            skills
+            github
+            linkedin
+            portfolio
+            location
+            role
+            `
+        )
+        .populate(
+            "startup",
+            `
+            title
+            founder
+            logo
+            `
+        );
+
+    if (!application) {
+        const error = new Error("Application not found.");
+        error.statusCode = 404;
+        throw error;
+    }
+
+    if (
+        application.startup.founder.toString() !==
+        recruiterId.toString()
+    ) {
+        const error = new Error("Unauthorized.");
+        error.statusCode = 403;
+        throw error;
+    }
+
+    return application;
+};
+
 module.exports = {
-    applyToStartup, getMyApplications, getStartupApplications, withdrawApplication
+    applyToStartup, getMyApplications, getStartupApplications, withdrawApplication, getApplicationById
 };
